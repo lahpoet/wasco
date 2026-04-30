@@ -1,0 +1,115 @@
+{% extends "shared/base.html" %}
+{% block body %}
+<header class="relative overflow-hidden bg-slate-950 text-white">
+    <nav class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+        <div>
+            <div class="text-2xl font-black">WASCO</div>
+            <div class="text-xs text-cyan-200">Online Services</div>
+        </div>
+        <div class="hidden md:flex gap-7 text-sm text-slate-200">
+            <a href="#services">Services</a>
+            <a href="#rates">Rates</a>
+            <a href="#support">Support</a>
+            <a href="#coverage">Districts</a>
+        </div>
+        <a href="{{ url_for('auth.login') }}" class="bg-cyan-400 text-slate-950 px-5 py-2 rounded-full font-bold shadow-lg hover:bg-cyan-300">Sign In</a>
+    </nav>
+
+    <section class="max-w-7xl mx-auto px-6 py-24 grid lg:grid-cols-2 gap-12 items-center">
+        <div>
+            <span class="inline-flex mb-5 rounded-full bg-cyan-400/10 px-4 py-2 text-cyan-200 border border-cyan-300/20">
+                Secure water billing and service access
+            </span>
+            <h1 class="text-5xl lg:text-6xl font-black leading-tight">
+                Manage water services with confidence.
+            </h1>
+            <p class="mt-6 text-lg text-slate-300 max-w-xl">
+                View water rates, access account services, track balances, submit service reports,
+                and manage monthly billing through one secure online platform.
+            </p>
+            <div class="mt-8 flex flex-wrap gap-4">
+                <a href="{{ url_for('auth.login') }}" class="bg-cyan-400 text-slate-950 px-6 py-3 rounded-xl font-bold">Access My Account</a>
+                <a href="#services" class="border border-white/20 px-6 py-3 rounded-xl font-bold">View Services</a>
+            </div>
+        </div>
+        <div class="glass-card p-6">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="feature-card"><div class="metric">24/7</div><div>Account access</div></div>
+                <div class="feature-card"><div class="metric">10</div><div>District coverage</div></div>
+                <div class="feature-card"><div class="metric">Secure</div><div>Customer portal</div></div>
+                <div class="feature-card"><div class="metric">Fast</div><div>Service reporting</div></div>
+            </div>
+        </div>
+    </section>
+</header>
+
+<section id="services" class="max-w-7xl mx-auto px-6 py-16">
+    <div class="text-center mb-10">
+        <h2 class="section-title">Online service modules</h2>
+        <p class="section-subtitle">Designed for customers, administrators, and branch management.</p>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+        <div class="public-card">
+            <div class="card-icon">💧</div>
+            <h3>Water Usage</h3>
+            <p>Customers can review monthly readings and monitor consumption records.</p>
+        </div>
+        <div class="public-card">
+            <div class="card-icon">🧾</div>
+            <h3>Billing & Balances</h3>
+            <p>Bills, payment status, due dates, and outstanding balances are available in the portal.</p>
+        </div>
+        <div class="public-card">
+            <div class="card-icon">🛠️</div>
+            <h3>Leakage Reports</h3>
+            <p>Registered customers can submit leakage reports for service response.</p>
+        </div>
+    </div>
+</section>
+
+<section id="rates" class="bg-white py-16 border-y">
+    <div class="max-w-5xl mx-auto px-6">
+        <div class="text-center mb-8">
+            <h2 class="section-title">Water billing rates</h2>
+            <p class="section-subtitle">Rates are applied according to recorded monthly usage.</p>
+        </div>
+        <div class="overflow-hidden rounded-2xl border shadow-sm">
+            <table class="w-full text-left">
+                <thead class="bg-slate-950 text-white">
+                    <tr>
+                        <th class="p-4">Tier</th>
+                        <th class="p-4">Usage Range</th>
+                        <th class="p-4">Cost Per Unit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rate in rates %}
+                    <tr class="border-t">
+                        <td class="p-4 font-semibold">{{ rate.rate_tier }}</td>
+                        <td class="p-4">{{ rate.min_usage }} - {{ rate.max_usage if rate.max_usage else "Above" }}</td>
+                        <td class="p-4">M {{ rate.cost_per_unit }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td class="p-4" colspan="3">Current rates will be published by the billing office.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section id="support" class="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-6">
+    <div class="public-card">
+        <h3>Customer support</h3>
+        <p>For account assistance, billing queries, payment confirmation, or service interruptions, contact the nearest service office.</p>
+    </div>
+    <div id="coverage" class="public-card">
+        <h3>District services</h3>
+        <p>The platform supports branch-level operations and customer service access across Lesotho districts.</p>
+    </div>
+</section>
+
+<footer class="bg-slate-950 text-slate-400 py-8 text-center">
+    <p>© 2026 WASCO Online Services. All rights reserved.</p>
+</footer>
+{% endblock %}

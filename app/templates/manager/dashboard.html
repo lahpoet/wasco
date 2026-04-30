@@ -1,0 +1,183 @@
+{% extends "shared/portal_layout.html" %}
+{% set page_title = "Branch Management" %}
+{% set page_subtitle = "Branch performance, water usage, billing trends and service insights" %}
+{% block content %}
+
+<div class="grid md:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+    <div class="stat-card"><span>Customers</span><strong>{{ totals.customers }}</strong></div>
+    <div class="stat-card"><span>Bills Issued</span><strong>{{ totals.bills }}</strong></div>
+    <div class="stat-card"><span>Water Usage</span><strong>{{ totals.usage }} units</strong></div>
+    <div class="stat-card"><span>Total Billed</span><strong>M {{ totals.billed }}</strong></div>
+    <div class="stat-card"><span>Total Paid</span><strong>M {{ totals.paid }}</strong></div>
+    <div class="stat-card"><span>Outstanding</span><strong>M {{ totals.outstanding }}</strong></div>
+</div>
+
+<div class="dashboard-card mb-6">
+    <h2 class="card-heading">Branch Performance</h2>
+    <p class="text-slate-500 mb-4">
+        This report compares each branch by number of customers, usage, billing value, paid value, outstanding balances and collection rate.
+    </p>
+    <div class="overflow-x-auto">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Branch</th>
+                    <th>Customers</th>
+                    <th>Bills</th>
+                    <th>Water Usage</th>
+                    <th>Total Billed</th>
+                    <th>Total Paid</th>
+                    <th>Outstanding</th>
+                    <th>Collection Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for branch in branch_performance %}
+                <tr>
+                    <td><strong>{{ branch.branch_name }}</strong></td>
+                    <td>{{ branch.total_customers }}</td>
+                    <td>{{ branch.total_bills }}</td>
+                    <td>{{ branch.total_usage }} units</td>
+                    <td>M {{ branch.total_billed }}</td>
+                    <td>M {{ branch.total_paid }}</td>
+                    <td>M {{ branch.outstanding_balance }}</td>
+                    <td>
+                        <div class="flex items-center gap-2 min-w-40">
+                            <div class="w-24 bg-slate-200 rounded-full h-2">
+                                <div class="bg-cyan-600 h-2 rounded-full" style="width: {{ [branch.collection_rate|float, 100]|min }}%"></div>
+                            </div>
+                            <span class="font-bold">{{ branch.collection_rate }}%</span>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="8">No branch performance records available.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="grid xl:grid-cols-2 gap-6 mb-6">
+    <div class="dashboard-card">
+        <h2 class="card-heading">Monthly Billing and Usage Performance</h2>
+        <div class="overflow-x-auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Bills</th>
+                        <th>Water Usage</th>
+                        <th>Total Billed</th>
+                        <th>Paid Value</th>
+                        <th>Outstanding</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for r in usage_reports %}
+                    <tr>
+                        <td>{{ r.billing_month }}</td>
+                        <td>{{ r.total_bills }}</td>
+                        <td>{{ r.total_usage }} units</td>
+                        <td>M {{ r.total_billed }}</td>
+                        <td>M {{ r.paid_value }}</td>
+                        <td>M {{ r.outstanding_value }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="6">No billing records available.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <h2 class="card-heading">Daily Performance</h2>
+        <div class="overflow-x-auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Bills</th>
+                        <th>Usage</th>
+                        <th>Billed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for day in daily_performance %}
+                    <tr>
+                        <td>{{ day.report_date }}</td>
+                        <td>{{ day.total_bills }}</td>
+                        <td>{{ day.usage_units }} units</td>
+                        <td>M {{ day.billed_amount }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4">No daily performance records available.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="grid xl:grid-cols-2 gap-6">
+    <div class="dashboard-card">
+        <h2 class="card-heading">Service Report Performance</h2>
+        <div class="overflow-x-auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Branch</th>
+                        <th>Total Reports</th>
+                        <th>Open</th>
+                        <th>Resolved</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for service in service_performance %}
+                    <tr>
+                        <td>{{ service.branch_name }}</td>
+                        <td>{{ service.total_reports }}</td>
+                        <td>{{ service.open_reports }}</td>
+                        <td>{{ service.resolved_reports }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4">No service performance records available.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <h2 class="card-heading">Recent Service Reports</h2>
+        <div class="overflow-x-auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Branch</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Reported</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for report in leakage_reports %}
+                    <tr>
+                        <td>{{ report.full_name }}</td>
+                        <td>{{ report.branch_name }}</td>
+                        <td>{{ report.location }}</td>
+                        <td>{{ report.report_status }}</td>
+                        <td>{{ report.reported_at }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="5">No service reports available.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

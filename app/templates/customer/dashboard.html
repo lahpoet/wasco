@@ -1,0 +1,108 @@
+{% extends "shared/portal_layout.html" %}
+{% set page_title = "Customer Account" %}
+{% set page_subtitle = "Billing, payments, usage records and service reporting" %}
+{% block content %}
+<div class="grid lg:grid-cols-3 gap-6 mb-6">
+    <div class="dashboard-card lg:col-span-2">
+        <h2 class="card-heading">Account Information</h2>
+        <div class="grid md:grid-cols-2 gap-4 text-sm">
+            <p><strong>Account:</strong> {{ customer.account_number }}</p>
+            <p><strong>Name:</strong> {{ customer.full_name }}</p>
+            <p><strong>District:</strong> {{ customer.district_name }}</p>
+            <p><strong>Address:</strong> {{ customer.address }}</p>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <h2 class="card-heading">Report Leakage</h2>
+        <form method="POST" action="{{ url_for('customer.report_leakage') }}" class="space-y-3">
+            <input name="location" class="input" placeholder="Location" required>
+            <textarea name="description" class="input" placeholder="Describe the issue" required></textarea>
+            <button class="btn-primary w-full">Submit Report</button>
+        </form>
+    </div>
+</div>
+
+
+<div class="dashboard-card mb-6">
+    <h2 class="card-heading">Water Usage Overview</h2>
+    <div class="grid md:grid-cols-3 gap-4 mb-6">
+        {% set latest = readings[0] if readings else None %}
+        <div class="stat-card"><span>Latest Usage</span><strong>{{ latest.usage_units if latest else 0 }} units</strong></div>
+        <div class="stat-card"><span>Latest Month</span><strong>{{ latest.reading_month if latest else "None" }}</strong></div>
+        <div class="stat-card"><span>Current Reading</span><strong>{{ latest.current_reading if latest else 0 }}</strong></div>
+    </div>
+
+    <div class="space-y-4">
+        {% for reading in readings %}
+        <div>
+            <div class="flex justify-between text-sm mb-1">
+                <span class="font-semibold">{{ reading.reading_month }}</span>
+                <span>{{ reading.usage_units }} units</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-3">
+                <div class="bg-cyan-600 h-3 rounded-full" style="width: {{ [reading.usage_units|float * 2, 100]|min }}%"></div>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-slate-500">No water usage records available.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="dashboard-card mb-6">
+    <h2 class="card-heading">My Water Usage, Bills and Balance</h2>
+    <div class="overflow-x-auto">
+        <table class="data-table">
+            <thead><tr><th>Month</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Status</th><th>Due Date</th><th>Payment</th></tr></thead>
+            <tbody>
+                {% for bill in bills %}
+                <tr>
+                    <td>{{ bill.billing_month }}</td>
+                    <td>M {{ bill.total_amount }}</td>
+                    <td>M {{ bill.amount_paid }}</td>
+                    <td>M {{ bill.balance }}</td>
+                    <td><span class="status-pill">{{ bill.payment_status }}</span></td>
+                    <td>{{ bill.due_date }}</td>
+                    <td>
+                        {% if bill.balance > 0 %}
+                        <form method="POST" action="{{ url_for('customer.record_payment', bill_id=bill.bill_id) }}" class="flex gap-2">
+                            <input name="amount" type="number" step="0.01" min="1" max="{{ bill.balance }}" class="small-input" required>
+                            <select name="method" class="small-input"><option>Mobile Money</option><option>Bank Transfer</option><option>Cash Office</option></select>
+                            <button class="btn-small">Pay</button>
+                        </form>
+                        {% else %}
+                        Completed
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7">No bills available.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="dashboard-card">
+    <h2 class="card-heading">Recent Meter Readings</h2>
+    <div class="overflow-x-auto">
+        <table class="data-table">
+            <thead><tr><th>Month</th><th>Previous</th><th>Current</th><th>Usage</th><th>Date</th></tr></thead>
+            <tbody>
+                {% for reading in readings %}
+                <tr>
+                    <td>{{ reading.reading_month }}</td>
+                    <td>{{ reading.previous_reading }}</td>
+                    <td>{{ reading.current_reading }}</td>
+                    <td>{{ reading.usage_units }}</td>
+                    <td>{{ reading.reading_date }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5">No readings available.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
