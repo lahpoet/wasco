@@ -1,7 +1,7 @@
 Flask
-psycopg2-binary
-PyMySQL
-Werkzeug
-python-dotenv
 gunicorn
 psycopg2-binary
+PyMySQL
+python-dotenv
+Werkzeug
+cryptography
