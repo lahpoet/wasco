@@ -3,7 +3,19 @@ import psycopg2
 import psycopg2.extras
 import pymysql
 
+
 def get_main_db():
+    database_url = os.getenv("DATABASE_URL")
+
+    # ✅ Railway / Supabase / Production
+    if database_url:
+        return psycopg2.connect(
+            database_url,
+            sslmode="require",
+            cursor_factory=psycopg2.extras.RealDictCursor
+        )
+
+    # ✅ Local fallback (for development)
     return psycopg2.connect(
         host=os.getenv("POSTGRES_HOST", "localhost"),
         port=os.getenv("POSTGRES_PORT", "5432"),
@@ -12,6 +24,7 @@ def get_main_db():
         password=os.getenv("POSTGRES_PASSWORD", "Barbie@5"),
         cursor_factory=psycopg2.extras.RealDictCursor
     )
+
 
 def get_reporting_db():
     return pymysql.connect(
