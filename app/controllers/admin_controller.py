@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from werkzeug.security import generate_password_hash
 from app.services.auth_service import login_required
 from app.models.db import get_main_db
+from app.services.sync_service import sync_postgres_to_mysql
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -94,6 +95,18 @@ def dashboard():
                            bills=bills,
                            branches=branches,
                            districts=districts)
+
+@admin_bp.route("/sync/mysql", methods=["POST"])
+@login_required("admin")
+def sync_mysql():
+    try:
+        result = sync_postgres_to_mysql()
+        total = sum(result.values())
+        flash(f"Reporting database synced successfully. {total} records checked/copied.", "success")
+    except Exception as error:
+        flash(f"Sync failed: {error}", "error")
+
+    return redirect(url_for("admin.dashboard"))
 
 @admin_bp.route("/customers/add", methods=["POST"])
 @login_required("admin")
